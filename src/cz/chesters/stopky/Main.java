@@ -2,7 +2,7 @@ package cz.chesters.stopky;
 
 public class Main {
     public static void main(String[] args) {
-        Stopky stop = new Stopky();
+        Galerie stop = new Galerie();
         stop.doShit();
     }
 }

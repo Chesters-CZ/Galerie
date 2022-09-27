@@ -40,6 +40,9 @@ public class Cibuloid extends JPanel implements ActionListener {
         bigPic.setMargin(new Insets(0, 0, 0, 0));
         prepare(bigPic, 2);
         bigPic.addActionListener(this::clickityClickIsThatADick);
+        bigPic.setVisible(false);
+
+        this.setLayout(null);
 
         menuSetup();
     }
@@ -74,6 +77,7 @@ public class Cibuloid extends JPanel implements ActionListener {
         if (e.getSource().equals(bigPic)){
             System.out.println("BigClick");
             bigPic.setIcon(null);
+            bigPic.setVisible(false);
         }
         for (int i = 0; i < menuBtns.size(); i++) {
             if (menuBtns.get(i).equals(e.getSource())) {
@@ -81,6 +85,7 @@ public class Cibuloid extends JPanel implements ActionListener {
                 try {
                     img = ImageIO.read(new File(obrazky[i].getPath()));
                     bigPic.setIcon(new ImageIcon(img.getScaledInstance(800,600, Image.SCALE_DEFAULT)));
+                    bigPic.setVisible(true);
                 } catch (IOException ee) {
                     ee.printStackTrace();
                 }

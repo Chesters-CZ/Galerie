@@ -1,4 +1,4 @@
-package cz.chesters.stopky;
+package cz.chesters.galerie;
 
 public class Main {
     public static void main(String[] args) {

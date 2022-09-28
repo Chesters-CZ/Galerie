@@ -1,4 +1,4 @@
-package cz.chesters.stopky;
+package cz.chesters.galerie;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;

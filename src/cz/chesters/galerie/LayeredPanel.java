@@ -12,10 +12,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class Cibuloid extends JPanel implements ActionListener {
+public class LayeredPanel extends JPanel implements ActionListener {
 
     File[] obrazky = new File("./imgs/").listFiles();
-    // MAKE SURE ./imgs/ IS CLEAN. THERE MUST BE NO NON-IMAGE FILES OR FOLDERS IN THERE
+
+    // abych předešel chybám při pokusech zobrazit neobrázkový soubor jako obrázek,
+    // galerie bude podporovat jen obrázky s koncovkou uloženou zde
+    String[] allowedImageExtensions = {".jpg", ".png"};
 
     JButton bigPic = new JButton();
     ArrayList<JButton> menuBtns = new ArrayList<>();
@@ -37,7 +40,7 @@ public class Cibuloid extends JPanel implements ActionListener {
 
     }
 
-    public Cibuloid(Galerie galerie) {
+    public LayeredPanel(Galerie galerie) {
         parent = galerie;
         bigPic.setBounds(0, 0, 800, 600);
         bigPic.setBorder(null);
@@ -123,21 +126,25 @@ public class Cibuloid extends JPanel implements ActionListener {
         }
 
         for (int i = 0; i < obrazky.length; i++) {
-            try {
-                menuBtns.add(new JButton(new ImageIcon(ImageIO.read(new File(obrazky[i].getPath())).getScaledInstance(size.width, size.height, Image.SCALE_DEFAULT))));
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (checkExtension(obrazky[i].getName().substring(obrazky[i].getName().lastIndexOf(".")))) {
+                System.out.println("extension ok");
+                try {
+                    menuBtns.add(new JButton(new ImageIcon(ImageIO.read(new File(obrazky[i].getPath())).getScaledInstance(size.width, size.height, Image.SCALE_DEFAULT))));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                menuBtns.get(menuBtns.size()-1).setBounds(widthPos, yPos, size.width, size.height);
+                widthPos = widthPos + size.width + 10;
+                menuBtns.get(menuBtns.size()-1).addActionListener(this::clickityClickIsThatADick);
+                menuBtns.get(menuBtns.size()-1).setVisible(true);
+                menuBtns.get(menuBtns.size()-1).setFocusPainted(true);
+                menuBtns.get(menuBtns.size()-1).setContentAreaFilled(false);
+                menuBtns.get(menuBtns.size()-1).setMargin(new Insets(0, 0, 0, 0));
+                menuBtns.get(menuBtns.size()-1).setBorder(new LineBorder(new Color(0, 0, 0), 0));
+                menu.add(menuBtns.get(menuBtns.size()-1));
+                widthPos++;
             }
-            menuBtns.get(i).setBounds(widthPos, yPos, size.width, size.height);
-            widthPos = widthPos + size.width + 10;
-            menuBtns.get(i).addActionListener(this::clickityClickIsThatADick);
-            menuBtns.get(i).setVisible(true);
-            menuBtns.get(i).setFocusPainted(true);
-            menuBtns.get(i).setContentAreaFilled(false);
-            menuBtns.get(i).setMargin(new Insets(0, 0, 0, 0));
-            menuBtns.get(i).setBorder(new LineBorder(new Color(0, 0, 0), 0));
-            menu.add(menuBtns.get(i));
-            widthPos++;
+            else System.out.println("extension not ok");
         }
         prepare(menu);
     }
@@ -223,5 +230,15 @@ public class Cibuloid extends JPanel implements ActionListener {
     public void prepare(JComponent o, Integer z) {
         o.setVisible(true);
         this.add(o, z);
+    }
+
+    public boolean checkExtension(String ext) {
+        for (String allowed : allowedImageExtensions) {
+            if (ext.toLowerCase().equals(allowed)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

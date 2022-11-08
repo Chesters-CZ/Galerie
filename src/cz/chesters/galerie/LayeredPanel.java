@@ -125,26 +125,25 @@ public class LayeredPanel extends JPanel implements ActionListener {
             System.out.println("Should you get an OutOfMemory Exception, try reducing the number of images and their size.");
         }
 
-        for (int i = 0; i < obrazky.length; i++) {
-            if (checkExtension(obrazky[i].getName().substring(obrazky[i].getName().lastIndexOf(".")))) {
+        for (File obrazek : obrazky) {
+            if (checkExtension(obrazek.getName().substring(obrazek.getName().lastIndexOf(".")))) {
                 System.out.println("extension ok");
                 try {
-                    menuBtns.add(new JButton(new ImageIcon(ImageIO.read(new File(obrazky[i].getPath())).getScaledInstance(size.width, size.height, Image.SCALE_DEFAULT))));
+                    menuBtns.add(new JButton(new ImageIcon(ImageIO.read(new File(obrazek.getPath())).getScaledInstance(size.width, size.height, Image.SCALE_DEFAULT))));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                menuBtns.get(menuBtns.size()-1).setBounds(widthPos, yPos, size.width, size.height);
+                menuBtns.get(menuBtns.size() - 1).setBounds(widthPos, yPos, size.width, size.height);
                 widthPos = widthPos + size.width + 10;
-                menuBtns.get(menuBtns.size()-1).addActionListener(this::clickityClickIsThatADick);
-                menuBtns.get(menuBtns.size()-1).setVisible(true);
-                menuBtns.get(menuBtns.size()-1).setFocusPainted(true);
-                menuBtns.get(menuBtns.size()-1).setContentAreaFilled(false);
-                menuBtns.get(menuBtns.size()-1).setMargin(new Insets(0, 0, 0, 0));
-                menuBtns.get(menuBtns.size()-1).setBorder(new LineBorder(new Color(0, 0, 0), 0));
-                menu.add(menuBtns.get(menuBtns.size()-1));
+                menuBtns.get(menuBtns.size() - 1).addActionListener(this::clickityClickIsThatADick);
+                menuBtns.get(menuBtns.size() - 1).setVisible(true);
+                menuBtns.get(menuBtns.size() - 1).setFocusPainted(true);
+                menuBtns.get(menuBtns.size() - 1).setContentAreaFilled(false);
+                menuBtns.get(menuBtns.size() - 1).setMargin(new Insets(0, 0, 0, 0));
+                menuBtns.get(menuBtns.size() - 1).setBorder(new LineBorder(new Color(0, 0, 0), 0));
+                menu.add(menuBtns.get(menuBtns.size() - 1));
                 widthPos++;
-            }
-            else System.out.println("extension not ok");
+            } else System.out.println("extension not ok");
         }
         prepare(menu);
     }

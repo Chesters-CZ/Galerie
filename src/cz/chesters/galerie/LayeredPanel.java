@@ -11,6 +11,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static java.lang.Double.parseDouble;
+import static java.lang.Integer.parseInt;
 
 public class LayeredPanel extends JPanel implements ActionListener {
 
@@ -21,15 +26,22 @@ public class LayeredPanel extends JPanel implements ActionListener {
     String[] allowedImageExtensions = {".jpg", ".png"};
 
     JButton bigPic = new JButton();
-    ArrayList<JButton> menuBtns = new ArrayList<>();
+    ArrayList<SelectableImageIcon> imageIcons = new ArrayList<>();
 
     JToolBar bar = new JToolBar();
-    JComboBox<String> box = new JComboBox<>(new String[]{"800x600", "640x480"});
-    JLabel settings = new JLabel("Settings");
-    JLabel gallery = new JLabel("Gallery");
-    JLabel resolution = new JLabel("Resolution");
-    JComboBox<String> iconSelection = new JComboBox<>(new String[]{"Default", "Tiny", "Smol", "Humongous"});
-    JLabel iconSize = new JLabel("Icon size");
+    JComboBox<String> windowSizeComboBox = new JComboBox<>(new String[]{"800x600", "640x480"});
+    JLabel galleryLabel = new JLabel("Gallery");
+    JLabel windowSizeLabel = new JLabel("Window size:");
+    JComboBox<String> iconSizeComboBox = new JComboBox<>(new String[]{"Default", "Tiny", "Smol", "Humongous"});
+    JLabel iconSizeLabel = new JLabel("Icon size");
+    JLabel modeLabel = new JLabel("Mode");
+    JComboBox<String> modeComboBox = new JComboBox<>(new String[]{"Single picture", "Select images to be presented", "Presentation mode"});
+    JLabel imageRateLabel = new JLabel("Present. delays");
+    JComboBox<String> imageRateComboBox = new JComboBox<>(new String[]{"0.25s", "0.5s", "0.75s", "1.0s", "1.5s", "2.0s", "2.5s", "3.0s", "4.0s", "5.0s", "10.0s", "15.0s", "20.0s", "30.0s", "45.0s", "60.0s", "120.0"});
+    Timer presentationTimer = new Timer();
+    TimerTask presentationTimerTask;
+    int slideNo;
+
     Galerie parent;
 
     JToolBar menu = new JToolBar();
@@ -37,7 +49,7 @@ public class LayeredPanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        System.out.println("Action: " + e.getSource() + ", " + e.getActionCommand());
     }
 
     public LayeredPanel(Galerie galerie) {
@@ -47,45 +59,62 @@ public class LayeredPanel extends JPanel implements ActionListener {
         bigPic.setFocusPainted(true);
         bigPic.setContentAreaFilled(false);
         bigPic.setMargin(new Insets(0, 0, 0, 0));
-        prepare(bigPic, 2);
+        prepare(bigPic, 3);
         bigPic.addActionListener(this::clickityClickIsThatADick);
         bigPic.setVisible(false);
 
-        box.setEditable(false);
-        box.setBounds(120, 75, 635, 30);
-        box.setVisible(true);
-        box.addActionListener(this::clickityTwoElectricBoogaloo);
-        box.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
-        bar.add(box);
+        windowSizeComboBox.setEditable(false);
+        windowSizeComboBox.setBounds(120, 35, 635, 30);
+        windowSizeComboBox.setVisible(true);
+        windowSizeComboBox.addActionListener(this::clickityTwoElectricBoogaloo);
+        windowSizeComboBox.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
+        bar.add(windowSizeComboBox);
 
-        iconSelection.setEditable(false);
-        iconSelection.setBounds(120, 115, 635, 30);
-        iconSelection.setVisible(true);
-        iconSelection.addActionListener(this::clickityTwoElectricBoogaloo);
-        iconSelection.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
-        bar.add(iconSelection);
+        iconSizeComboBox.setEditable(false);
+        iconSizeComboBox.setBounds(120, 75, 635, 30);
+        iconSizeComboBox.setVisible(true);
+        iconSizeComboBox.addActionListener(this::clickityTwoElectricBoogaloo);
+        iconSizeComboBox.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
+        bar.add(iconSizeComboBox);
 
-        gallery.setBounds(2, 2, 796, 30);
-        gallery.setVisible(true);
-        gallery.setFont(new Font(Font.SERIF, Font.BOLD, 27));
-        gallery.setHorizontalAlignment(SwingConstants.CENTER);
-        bar.add(gallery);
+        modeComboBox.setEditable(false);
+        modeComboBox.setBounds(120, 115, 635, 30);
+        modeComboBox.setVisible(true);
+        modeComboBox.addActionListener(this::clickityTwoElectricBoogaloo);
+        modeComboBox.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
+        bar.add(modeComboBox);
 
-        settings.setBounds(2, 42, 796, 25);
-        settings.setVisible(true);
-        settings.setFont(new Font(Font.DIALOG, Font.BOLD, 20));
-        settings.setHorizontalAlignment(SwingConstants.CENTER);
-        bar.add(settings);
+        imageRateComboBox.setEditable(false);
+        imageRateComboBox.setBounds(120, 155, 635, 30);
+        imageRateComboBox.setVisible(true);
+        imageRateComboBox.addActionListener((this::clickityTwoElectricBoogaloo));
+        bar.add(imageRateComboBox);
 
-        resolution.setBounds(25, 75, 100, 30);
-        resolution.setVisible(true);
-        resolution.setHorizontalAlignment(SwingConstants.LEFT);
-        bar.add(resolution);
+        galleryLabel.setBounds(2, 2, 796, 30);
+        galleryLabel.setVisible(true);
+        galleryLabel.setFont(new Font(Font.SERIF, Font.BOLD, 27));
+        galleryLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        bar.add(galleryLabel);
 
-        iconSize.setBounds(25, 115, 100, 30);
-        iconSize.setVisible(true);
-        iconSize.setHorizontalAlignment(SwingConstants.LEFT);
-        bar.add(iconSize);
+        windowSizeLabel.setBounds(25, 35, 100, 30);
+        windowSizeLabel.setVisible(true);
+        windowSizeLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        bar.add(windowSizeLabel);
+
+        iconSizeLabel.setBounds(25, 75, 100, 30);
+        iconSizeLabel.setVisible(true);
+        iconSizeLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        bar.add(iconSizeLabel);
+
+        modeLabel.setBounds(25, 115, 100, 30);
+        modeLabel.setVisible(true);
+        modeLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        bar.add(modeLabel);
+
+        imageRateLabel.setBounds(25, 155, 100, 30);
+        imageRateLabel.setVisible(true);
+        imageRateLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        bar.add(imageRateLabel);
 
         bar.setBounds(0, 0, 800, 200);
         bar.setFloatable(false);
@@ -109,11 +138,12 @@ public class LayeredPanel extends JPanel implements ActionListener {
     }
 
     public void goGoGadget(int yPos, int maxX, Rectangle size) {
-        for (JButton menuBtn : menuBtns) {
-            menu.remove(menuBtn);
-            menuBtn.removeNotify();
+        for (SelectableImageIcon s : imageIcons) {
+            menu.remove(s.jbutton);
+            s.jbutton.removeNotify();
         }
-        menuBtns = new ArrayList<>();
+
+
         menu.setBounds(0, 200, maxX + 20, yPos + 55);
         menu.setFloatable(false);
         menu.setVisible(true);
@@ -124,28 +154,101 @@ public class LayeredPanel extends JPanel implements ActionListener {
             System.out.println("You are trying to display a lot of pictures. Please wait, while the program loads them.");
             System.out.println("Should you get an OutOfMemory Exception, try reducing the number of images and their size.");
         }
-
-        for (File obrazek : obrazky) {
-            if (checkExtension(obrazek.getName().substring(obrazek.getName().lastIndexOf(".")))) {
-                System.out.println("extension ok");
-                try {
-                    menuBtns.add(new JButton(new ImageIcon(ImageIO.read(new File(obrazek.getPath())).getScaledInstance(size.width, size.height, Image.SCALE_DEFAULT))));
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if (!Objects.equals(modeComboBox.getSelectedItem(), "Presentation mode")) {
+            System.out.println("obrazky.length: " + obrazky.length + ", imageIcons.length: " + imageIcons.size());
+            for (int i = 0; i < obrazky.length; i++) {
+                File obrazek = obrazky[i];
+                if (imageIcons.size() < obrazky.length) {
+                    imageIcons.add(new SelectableImageIcon(new JButton()));
                 }
-                menuBtns.get(menuBtns.size() - 1).setBounds(widthPos, yPos, size.width, size.height);
-                widthPos = widthPos + size.width + 10;
-                menuBtns.get(menuBtns.size() - 1).addActionListener(this::clickityClickIsThatADick);
-                menuBtns.get(menuBtns.size() - 1).setVisible(true);
-                menuBtns.get(menuBtns.size() - 1).setFocusPainted(true);
-                menuBtns.get(menuBtns.size() - 1).setContentAreaFilled(false);
-                menuBtns.get(menuBtns.size() - 1).setMargin(new Insets(0, 0, 0, 0));
-                menuBtns.get(menuBtns.size() - 1).setBorder(new LineBorder(new Color(0, 0, 0), 0));
-                menu.add(menuBtns.get(menuBtns.size() - 1));
-                widthPos++;
-            } else System.out.println("extension not ok");
+                if (checkExtension(obrazek.getName().substring(obrazek.getName().lastIndexOf(".")))) {
+                    System.out.println("extension ok");
+                    try {
+                        if (Objects.equals(modeComboBox.getSelectedItem(), "Select images to be presented") && !imageIcons.get(i).selected) {
+                            System.out.println("Creating gray image");
+                            imageIcons.get(i).jbutton = (new JButton(new ImageIcon(GrayFilter.createDisabledImage(
+                                    (new ImageIcon(ImageIO.read(new File(obrazek.getPath())).getScaledInstance(size.width, size.height, Image.SCALE_DEFAULT)).getImage())))));
+                        } else {
+                            System.out.println(Objects.equals(modeComboBox.getSelectedItem(), "Select images to be presented") + ", " + !imageIcons.get(i).selected);
+                            imageIcons.get(i).jbutton = (new JButton(new ImageIcon(ImageIO.read(new File(obrazek.getPath())).getScaledInstance(size.width, size.height, Image.SCALE_DEFAULT))));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    imageIcons.get(i).jbutton.setBounds(widthPos, yPos, size.width, size.height);
+                    widthPos = widthPos + size.width + 10;
+
+                    if (Objects.equals(modeComboBox.getSelectedItem(), "Single picture")) {
+                        imageIcons.get(i).jbutton.removeActionListener(this::selectingImages);
+                        imageIcons.get(i).jbutton.addActionListener(this::clickityClickIsThatADick);
+                    } else if (Objects.equals(modeComboBox.getSelectedItem(), "Select images to be presented")) {
+                        imageIcons.get(i).jbutton.removeActionListener(this::clickityClickIsThatADick);
+                        imageIcons.get(i).jbutton.addActionListener(this::selectingImages);
+                    }
+
+                    imageIcons.get(i).jbutton.setVisible(true);
+                    imageIcons.get(i).jbutton.setFocusPainted(true);
+                    imageIcons.get(i).jbutton.setContentAreaFilled(false);
+                    imageIcons.get(i).jbutton.setMargin(new Insets(0, 0, 0, 0));
+                    imageIcons.get(i).jbutton.setBorder(new LineBorder(new Color(0, 0, 0), 0));
+                    menu.add(imageIcons.get(i).jbutton);
+                    widthPos++;
+                } else System.out.println("extension not ok");
+            }
         }
+
         prepare(menu);
+    }
+
+    public void beginPresenting() {
+        slideNo = 0;
+        try {
+            bigPic.setIcon(new ImageIcon(ImageIO.read(obrazky[findPosOfXthSelection(slideNo)]).getScaledInstance(bigPic.getWidth(), bigPic.getHeight(), Image.SCALE_DEFAULT)));
+            slideNo++;
+            bigPic.setVisible(true);
+            bigPic.removeActionListener(this::clickityClickIsThatADick);
+            bigPic.addActionListener(this::stopPresenting);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("There was an error when beginning to present.");
+            presentationTimerTask.cancel();
+            stopPresenting(null);
+        }
+
+        presentationTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                nextSlide();
+            }
+        };
+        presentationTimer.scheduleAtFixedRate(presentationTimerTask, 0, (int) (parseDouble(Objects.requireNonNull(imageRateComboBox.getSelectedItem()).toString().replace("s", "")) * 1000));
+
+        parent.frame.repaint();
+        parent.frame.revalidate();
+    }
+
+    public void nextSlide() {
+        try {
+            bigPic.setIcon(new ImageIcon(ImageIO.read(obrazky[findPosOfXthSelection(slideNo)]).getScaledInstance(bigPic.getWidth(), bigPic.getHeight(), Image.SCALE_DEFAULT)));
+            slideNo++;
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+            System.out.println("There was an error when showing next slide.");
+            modeComboBox.setSelectedItem("Single picture");
+        }
+
+        parent.frame.repaint();
+        parent.frame.revalidate();
+    }
+
+    public void stopPresenting(ActionEvent e) {
+        presentationTimerTask.cancel();
+        bigPic.setVisible(false);
+        bigPic.removeActionListener(this::stopPresenting);
+        bigPic.addActionListener(this::clickityClickIsThatADick);
+        modeComboBox.setSelectedItem("Single picture");
     }
 
     public void clickityClickIsThatADick(ActionEvent e) {
@@ -154,15 +257,16 @@ public class LayeredPanel extends JPanel implements ActionListener {
             bigPic.setIcon(null);
             bigPic.setVisible(false);
         }
-        for (int i = 0; i < menuBtns.size(); i++) {
-            if (menuBtns.get(i).equals(e.getSource())) {
+
+        for (int i = 0; i < imageIcons.size(); i++) {
+            if (imageIcons.get(i).jbutton.equals(e.getSource())) {
                 BufferedImage img;
                 try {
                     img = ImageIO.read(new File(obrazky[i].getPath()));
                     bigPic.setIcon(new ImageIcon(img.getScaledInstance(bigPic.getWidth(), bigPic.getHeight(), Image.SCALE_DEFAULT)));
                     bigPic.setVisible(true);
-                } catch (IOException ee) {
-                    ee.printStackTrace();
+                } catch (IOException ioE) {
+                    ioE.printStackTrace();
                 }
             }
         }
@@ -171,21 +275,21 @@ public class LayeredPanel extends JPanel implements ActionListener {
     private void clickityTwoElectricBoogaloo(ActionEvent e) {
         boolean isBig = true;
         Rectangle size = null;
-        if (Objects.equals(box.getSelectedItem(), "800x600")) {
+        if (Objects.equals(windowSizeComboBox.getSelectedItem(), "800x600")) {
             parent.frame.setSize(800, 638);
             try {
                 Thread.sleep(50);
             } catch (Exception ignored) {
             }
             bar.setBounds(0, 0, 800, 200);
-            settings.setBounds(2, 42, 796, 25);
-            gallery.setBounds(2, 2, 796, 25);
-            box.setBounds(120, 75, 635, 30);
+            galleryLabel.setBounds(2, 2, 796, 25);
+            windowSizeComboBox.setBounds(120, 35, 635, 30);
             bar.setLayout(null);
-            iconSelection.setBounds(120, 115, 635, 30);
+            iconSizeComboBox.setBounds(120, 75, 635, 30);
+            modeComboBox.setBounds(120, 115, 635, 30);
             bigPic.setBounds(0, 0, 800, 600);
         }
-        if (Objects.equals(box.getSelectedItem(), "640x480")) {
+        if (Objects.equals(windowSizeComboBox.getSelectedItem(), "640x480")) {
             isBig = false;
             parent.frame.setSize(640, 518);
             try {
@@ -193,27 +297,72 @@ public class LayeredPanel extends JPanel implements ActionListener {
             } catch (Exception ignored) {
             }
             bar.setBounds(0, 0, 640, 200);
-            settings.setBounds(2, 42, 636, 25);
-            gallery.setBounds(2, 2, 636, 25);
-            box.setBounds(120, 75, 425, 30);
+            galleryLabel.setBounds(2, 2, 636, 25);
+            windowSizeComboBox.setBounds(120, 35, 425, 30);
             bar.setLayout(null);
-            iconSelection.setBounds(120, 115, 425, 30);
+            iconSizeComboBox.setBounds(120, 75, 425, 30);
+            modeComboBox.setBounds(120, 115, 425, 30);
             bigPic.setBounds(0, 0, 640, 480);
         }
 
-        if (Objects.equals(iconSelection.getSelectedItem(), "Default")) {
+        if (Objects.equals(iconSizeComboBox.getSelectedItem(), "Default")) {
             size = new Rectangle(60, 45);
-        } else if (Objects.equals(iconSelection.getSelectedItem(), "Tiny")) {
+        } else if (Objects.equals(iconSizeComboBox.getSelectedItem(), "Tiny")) {
             size = new Rectangle(16, 12);
-        } else if (Objects.equals(iconSelection.getSelectedItem(), "Smol")) {
+        } else if (Objects.equals(iconSizeComboBox.getSelectedItem(), "Smol")) {
             size = new Rectangle(32, 24);
-        } else if (Objects.equals(iconSelection.getSelectedItem(), "Humongous")) {
+        } else if (Objects.equals(iconSizeComboBox.getSelectedItem(), "Humongous")) {
             size = new Rectangle(100, 75);
+        }
+
+        if (Objects.equals(modeComboBox.getSelectedItem(), "Presentation mode")) {
+            beginPresenting();
         }
 
         menuSetup(isBig, size);
         parent.frame.repaint();
         parent.frame.revalidate();
+    }
+
+    public void selectingImages(ActionEvent e) {
+        System.out.println("Selecting images: " + e.getSource() + ", " + e.getActionCommand());
+        for (int i = 0; i < imageIcons.size(); i++) {
+            SelectableImageIcon sii = imageIcons.get(i);
+            System.out.println(sii.jbutton);
+            System.out.println(e.getSource());
+            if (e.getSource().equals(sii.jbutton)) {
+                sii.toggleSelect();
+                System.out.println("Is equal");
+            } else System.out.println("Is not equal");
+            System.out.println();
+        }
+        clickityTwoElectricBoogaloo(null);
+    }
+
+    public int findPosOfXthSelection(int desired) {
+        int foundValids = -1;
+        for (int i = 0; i < imageIcons.size(); i++) {
+            if (imageIcons.get(i).selected) {
+                foundValids++;
+            }
+            if (foundValids == desired) {
+                return i;
+            }
+        }
+        System.out.println("Not enough selected images, wrapping around.");
+
+        int currentValids = -1;
+        for (int i = 0; i < imageIcons.size(); i++) {
+            if (imageIcons.get(i).selected) {
+                currentValids++;
+            }
+            if (currentValids == desired % (foundValids + 1)) {
+                return i;
+            }
+        }
+
+        System.out.println("Error, no selected images found");
+        return -1;
     }
 
     public void prepare(JComponent o) {

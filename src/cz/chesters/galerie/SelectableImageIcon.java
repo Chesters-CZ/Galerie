@@ -11,19 +11,6 @@ public class SelectableImageIcon {
         selected = false;
     }
 
-    public SelectableImageIcon(JButton jbutton, boolean selected) {
-        this.jbutton = jbutton;
-        this.selected = selected;
-    }
-
-    public void select() {
-        this.selected = true;
-    }
-
-    public void unselect() {
-        this.selected = false;
-    }
-
     public void toggleSelect() {
         this.selected = !this.selected;
     }

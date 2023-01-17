@@ -15,7 +15,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static java.lang.Double.parseDouble;
-import static java.lang.Integer.parseInt;
 
 public class LayeredPanel extends JPanel implements ActionListener {
 
@@ -329,8 +328,7 @@ public class LayeredPanel extends JPanel implements ActionListener {
 
     public void selectingImages(ActionEvent e) {
         System.out.println("Selecting images: " + e.getSource() + ", " + e.getActionCommand());
-        for (int i = 0; i < imageIcons.size(); i++) {
-            SelectableImageIcon sii = imageIcons.get(i);
+        for (SelectableImageIcon sii : imageIcons) {
             System.out.println(sii.jbutton);
             System.out.println(e.getSource());
             if (e.getSource().equals(sii.jbutton)) {
@@ -376,11 +374,6 @@ public class LayeredPanel extends JPanel implements ActionListener {
     public void prepare(JComponent o, int z) {
         o.setVisible(true);
         this.add(o, Integer.valueOf(z));
-    }
-
-    public void prepare(JComponent o, Integer z) {
-        o.setVisible(true);
-        this.add(o, z);
     }
 
     public boolean checkExtension(String ext) {

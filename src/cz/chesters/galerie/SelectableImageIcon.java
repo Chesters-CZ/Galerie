@@ -8,7 +8,7 @@ public class SelectableImageIcon {
 
     public SelectableImageIcon(JButton jbutton) {
         this.jbutton = jbutton;
-        selected = true;
+        selected = false;
     }
 
     public SelectableImageIcon(JButton jbutton, boolean selected) {

@@ -88,6 +88,7 @@ public class LayeredPanel extends JPanel implements ActionListener {
         imageRateComboBox.setBounds(120, 155, 635, 30);
         imageRateComboBox.setVisible(true);
         imageRateComboBox.addActionListener((this::clickityTwoElectricBoogaloo));
+        imageRateComboBox.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
         bar.add(imageRateComboBox);
 
         galleryLabel.setBounds(2, 2, 796, 30);
@@ -287,6 +288,7 @@ public class LayeredPanel extends JPanel implements ActionListener {
             bar.setLayout(null);
             iconSizeComboBox.setBounds(120, 75, 635, 30);
             modeComboBox.setBounds(120, 115, 635, 30);
+            imageRateComboBox.setBounds(120, 155, 635, 30);
             bigPic.setBounds(0, 0, 800, 600);
         }
         if (Objects.equals(windowSizeComboBox.getSelectedItem(), "640x480")) {
@@ -302,6 +304,7 @@ public class LayeredPanel extends JPanel implements ActionListener {
             bar.setLayout(null);
             iconSizeComboBox.setBounds(120, 75, 425, 30);
             modeComboBox.setBounds(120, 115, 425, 30);
+            imageRateComboBox.setBounds(120, 155, 425, 30);
             bigPic.setBounds(0, 0, 640, 480);
         }
 
